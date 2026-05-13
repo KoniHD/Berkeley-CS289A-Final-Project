@@ -17,11 +17,12 @@ If you find our repo useful in your research, please use the following BibTeX en
 
 ## Environment Setup
 
-Create the conda environment from the yaml file and activate the environment,
+This project uses [uv](https://docs.astral.sh/uv/) for Python dependency management (Python 3.10, PyTorch 1.12).
 
-```
-conda env create -f avgan.yml
-conda activate avgan
+Create the virtual environment and install dependencies from the repo root:
+
+```bash
+ uv sync
 ```
 
 ## Dataset
@@ -30,7 +31,7 @@ Coming soon!
 
 ## Contrastive Video Textures
 
-```cd contrastive_video_textures```
+`cd contrastive_video_textures`
 
 Train model for a single video:
 
@@ -54,25 +55,25 @@ python main.py -vdata <path to video folder> -adata <path to audio folder> -m 2 
 
 ## Baselines
 
-```cd baselines```
+`cd baselines`
 
 ### Video Textures Baslines
 
-```cd classic_video_textures```
+`cd classic_video_textures`
 
-1. Classic: 
+1. Classic:
 
 ```
 python video_textures.py -m 1 -vdata <source video folder> -vl <list of video names> -s -bs 48
 ```
 
-2. Classic+:
+1. Classic+:
 
 ```
 python video_textures.py -m 2 -vdata <source video folder> -vl <list of video names> -s -bs 48
 ```
 
-3. Classic++: 
+1. Classic++:
 
 ```
 python video_textures.py -m 3 -vdata <source video folder> -vl <list of video names> -s -bs 48
@@ -80,9 +81,10 @@ python video_textures.py -m 3 -vdata <source video folder> -vl <list of video na
 
 ### Audio-Conditioned Video Textures Baselines
 
-```cd audio_baselines```
+`cd audio_baselines`
 
-1. Random Clip: ```python random_segment_baseline.py -vl <original_video_list> -tl <target_audio_list>```
-2. Random Baseline: ```python random_baseline.py -vl <original_video_list> -tl <target_audio_list>```
-3. Random Shift: ```python random_shift.py -vl <original_video_list> -tl <target_audio_list>```
-4. Audio Nearest Neighbour: ```python audio_nearestneighbour.py -vl <original_video_list> -dl <target_audio_list>```
+1. Random Clip: `python random_segment_baseline.py -vl <original_video_list> -tl <target_audio_list>`
+2. Random Baseline: `python random_baseline.py -vl <original_video_list> -tl <target_audio_list>`
+3. Random Shift: `python random_shift.py -vl <original_video_list> -tl <target_audio_list>`
+4. Audio Nearest Neighbour: `python audio_nearestneighbour.py -vl <original_video_list> -dl <target_audio_list>`
+

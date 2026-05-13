@@ -1,0 +1,87 @@
+[project]
+name = "avtexture"
+version = "0.1.0"
+description = "Audio-conditioned contrastive video texture synthesis (WACV 2022)"
+readme = "README.md"
+requires-python = ">=3.8,<3.11"
+dependencies = [
+    "fairscale>=0.4.9,<0.5",
+    "fvcore>=0.1.5,<0.2",
+    "hydra-core>=1.2.0,<1.3",
+    "imageio>=2.21.3,<3",
+    "imageio-ffmpeg>=0.4.7,<0.5",
+    "ipdb>=0.13.9,<0.14",
+    "librosa>=0.9.2,<0.10",
+    "matplotlib>=3.5.3,<3.6",
+    "moviepy>=1.0.3,<2",
+    "numpy>=1.23.3,<1.24",
+    "omegaconf>=2.2.3,<2.3",
+    "opencv-python>=4.6.0.66,<4.7",
+    "pandas>=1.5.0,<1.6",
+    "pillow>=9.2.0,<10",
+    "psutil>=5.9.2,<6",
+    "pytorchvideo",
+    "pyyaml>=6.0,<7",
+    "requests>=2.28.1,<3",
+    "resampy>=0.4.2,<0.5",
+    "scikit-learn>=1.1.2,<1.2",
+    "scipy>=1.9.1,<1.10",
+    "setuptools>=59.8.0,<60",
+    "simplejson>=3.17.6,<4",
+    "slowfast",
+    "soundfile>=0.10.3,<0.11",
+    "tabulate>=0.8.10,<0.9",
+    "tensorboardx>=2.5.1,<3",
+    "timm>=0.6.7,<0.7",
+    "torch==1.12.1",
+    "torchaudio==0.12.1",
+    "torchvision==0.13.1",
+    "tqdm>=4.64.1,<5",
+    "yacs>=0.1.8,<0.2",
+]
+
+[dependency-groups]
+dev = [
+    "black>=22.3.0,<23",
+    "ipython>=8.5.0,<9",
+    "jupyter>=1.0.0",
+]
+
+[tool.uv]
+package = false
+environments = [
+    "sys_platform == 'darwin'",
+    "sys_platform == 'linux' and platform_machine == 'x86_64'",
+]
+
+[[tool.uv.dependency-metadata]]
+name = "slowfast"
+version = "1.0"
+requires-dist = [
+    "fairscale",
+    "matplotlib",
+    "opencv-python",
+    "pandas",
+    "pillow",
+    "psutil",
+    "pyyaml>=5.1",
+    "scikit-learn",
+    "simplejson",
+    "tensorboard",
+    "termcolor>=1.1",
+    "torchvision>=0.4.2",
+    "tqdm",
+    "yacs>=0.1.6",
+]
+
+[tool.uv.sources]
+pytorchvideo = { git = "https://github.com/facebookresearch/pytorchvideo.git" }
+slowfast = { git = "https://github.com/facebookresearch/SlowFast.git" }
+torch = { index = "pytorch-cpu" }
+torchaudio = { index = "pytorch-cpu" }
+torchvision = { index = "pytorch-cpu" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
