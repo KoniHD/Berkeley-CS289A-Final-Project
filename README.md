@@ -1,25 +1,81 @@
-# Audio-Conditioned Video Texture Generation
+# Loop-Aware Object Insertion via Classical Video Textures
 
-This is the official Pytorch implementation for the paper, "Strumming to the Beat: Audio-Coniditoned Contrastive Video Texture Synthesis", WACV 2022. We provide the datasets and code for training and testing the contrastive video texture synthesis model and the baselines as described in the paper.  
+**CS 289A Final Project — Spring 2026**  
+Konstantin Zeck & Alexander Gasca Rosas
 
-If you find our repo useful in your research, please use the following BibTeX entry for citation.
+---
 
-```BibTeX
-@InProceedings{Narasimhan_2022_WACV,
-    author    = {Narasimhan, Medhini and Ginosar, Shiry and Owens, Andrew and Efros, Alexei A. and Darrell, Trevor},
-    title     = {Strumming to the Beat: Audio-Conditioned Contrastive Video Textures},
-    booktitle = {Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision (WACV)},
-    month     = {January},
-    year      = {2022},
-    pages     = {3761-3770}
-}
+## Overview
+
+This project implements loop-aware object insertion into looping videos. Given a source video and a PNG object with transparency, a user interactively places the object on a single keyframe. Lucas-Kanade optical flow propagates the object's position across all frames of the source video. The classical video texture algorithm synthesizes a new looping video by selecting frames non-sequentially, and the object is composited at its tracked position for each selected frame.
+
+The key finding is that **naive object insertion** (pinning the object at the keyframe position for every synthesized frame) produces large alignment errors at non-sequential transitions, while **flow-tracked insertion** maintains correct alignment throughout — reducing mean alignment error from 35.7 px to 0.0 px.
+
+---
+
+## Background
+
+### Original Proposal
+
+The original proposal (see `CS_289_Project_Proposal.pdf`) described a five-stage pipeline using the contrastive video texture model from Narasimhan et al. (WACV 2022) with a SlowFast encoder, RAFT optical flow, and SuperSloMo frame interpolation. The goal was to augment the learned transition probability matrix with an object-consistency term and perform flow-based jump reconciliation at non-sequential transitions.
+
+### Why We Pivoted
+
+The contrastive codebase (`contrastive_video_textures/`) had several blockers:
+
+- Hardcoded Linux paths (`/home/medhini/...`) in three files — broken on Windows
+- Missing pretrained checkpoints (`SuperSloMo.ckpt`, `pytorch_vggish.pth`) not included in the repo
+- CUDA 11.6 + PyTorch 1.12.1 + PyTorchVideo dependency stack — not installable on Windows without significant effort
+- Bugs in unused model classes (`ContrastiveFramePrediction` references undefined variable `k`)
+
+We pivoted to the **classical video texture baseline** (`baselines/classic_video_textures/`), which requires no GPU, no pretrained weights, and runs on standard pip packages. We replaced RAFT with Lucas-Kanade optical flow (built into OpenCV) and dropped the learned contrastive model. The core object insertion idea from the proposal is preserved.
+
+---
+
+## Pipeline
+
+```
+Input video + PNG object (with alpha channel)
+        │
+        ▼
+1. Load all frames  (imageio + ffmpeg — handles .mpg/.avi/.mp4)
+        │
+        ▼
+2. Interactive keyframe placement  (OpenCV window)
+   Move mouse to position object, scroll to resize, click to confirm
+        │
+        ▼
+3. Lucas-Kanade sparse optical flow tracking
+   Sample feature grid inside object bounding box on keyframe
+   Propagate (x, y, w, h) forward and backward through all N frames
+        │
+        ▼
+4. Classical video texture synthesis
+   D1  — pairwise RGB frame distance matrix  [N × N]
+   D2  — binomial-smoothed D1 (rewards transitions where neighbors also match)
+   Q-learning — discount future transition costs to find stable loops
+   P   — thresholded transition probability matrix
+        │
+        ▼
+5. Sample synthesized frame sequence from P
+        │
+        ├──► Composite at TRACKED position per frame  →  *_tracked.mp4   [our method]
+        ├──► Composite at FIXED keyframe position     →  *_naive.mp4     [baseline]
+        └──► No object                                →  *_synthesized.mp4  [reference]
 ```
 
-<<<<<<< Updated upstream
-## Environment Setup
+### Connection to CS 289A Course Material
 
-Create the conda environment from the yaml file and activate the environment,
-=======
+| Pipeline step | Course concept |
+|---------------|---------------|
+| D1 → P1 Gaussian kernel | Kernel methods, probability |
+| D2 binomial smoothing | Regularization, bias-variance tradeoff |
+| Q-learning with discount α | Markov decision process, reinforcement learning |
+| LK optical flow | Iterative least-squares optimization on image gradients |
+| Transition probability sampling | Probabilistic modeling, Markov chains |
+
+---
+
 ## Installation
 
 No GPU required.
@@ -150,72 +206,49 @@ After running `insert_object.py`, three videos are saved to `results/`:
 ---
 
 ## File Structure
->>>>>>> Stashed changes
 
 ```
-conda env create -f avgan.yml
-conda activate avgan
+Berkeley-CS289A-Final-Project/
+├── CS_289_Project_Proposal.pdf
+├── README.md
+├── audio_conditioned_texture.ipynb      ← Colab notebook (audio-conditioned variant)
+├── videos/
+│   └── vtfishtk.mpg
+├── baselines/
+│   └── classic_video_textures/
+│       ├── insert_object.py             ← main pipeline (placement → tracking → synthesis → composite)
+│       ├── place_object.py              ← interactive OpenCV placement window
+│       ├── object_tracker.py            ← LK sparse optical flow tracker
+│       ├── composite.py                 ← alpha compositing utilities
+│       ├── synthesize.py                ← standalone video texture synthesis (no object)
+│       ├── computeD1.py                 ← pairwise frame distance matrix (CPU-compatible)
+│       ├── computeD2.py                 ← binomial smoothing filter (CPU-compatible)
+│       ├── q_learning.py                ← Q-learning transition refinement (CPU-compatible)
+│       ├── compute_joint_D1.py          ← MFCC audio + visual joint distance matrix
+│       ├── hat.png                      ← test object (procedurally generated)
+│       └── results/                     ← output videos
+└── contrastive_video_textures/          ← original paper codebase (not used, see Background)
 ```
 
-## Dataset
+---
 
-Coming soon!
+## Key Design Decisions
 
-## Contrastive Video Textures
+**Lucas-Kanade over RAFT.** LK sparse optical flow tracks a grid of feature points inside the object bounding box, propagating position forward and backward from the keyframe. It runs in milliseconds per frame on CPU. RAFT requires a GPU and pretrained checkpoint. For a rigid object like a hat, LK is sufficient.
 
-```cd contrastive_video_textures```
+**RGB pixel distance for D1.** No pretrained model needed. Raw pixel L2 distance captures frame similarity well for natural videos with a fixed camera. ResNet features are also supported via `--feats ResNet`.
 
-Train model for a single video:
+**Alignment error as primary metric.** Whole-frame temporal smoothness penalizes the tracked method for correctly following the character's motion. Alignment error — pixel distance between the placed hat center and the LK-tracked position — directly measures whether the object is in the right place at each frame.
 
-```
-python main.py -vdata <path to video folder> -m 1 -w 20 -stride 4 -temp 0.1 -th 0.0 -bs 8 -negs 14 -vl <list of video names> -ea slowfast -lr 1e-4
-```
+**CPU-only rewrite.** All three compute files were rewritten to replace hardcoded `.cuda()` calls with `torch.device("cuda" if torch.cuda.is_available() else "cpu")`. The full pipeline runs in under 2 minutes on a laptop CPU for a 334-frame video.
 
-Synthesize texture for the same video using the above model:
+**imageio over OpenCV for video loading.** OpenCV's MSMF backend fails to decode `.mpg` files on Windows. imageio with the ffmpeg plugin handles all common formats without additional configuration.
 
-```
-python main.py -vdata <path to video folder> -m 1 -w 20 -stride 4 -temp 0.1 -th 0.3 -bs 24 -vl <list of video names> -e -mbs 100
-```
+---
 
-## Audio-Conditioned Contrastive Video Texture Synthesis
+## References
 
-First, train a contrastive model for the video using the command above. Ensure that the audio for the same video is in the audio folder as a wav file with the same name. Next, to synthesize a new video conditioned on an audio, 
-
-```
-python main.py -vdata <path to video folder> -adata <path to audio folder> -m 2 -w 20 -stride 4 -temp 0.1 -th 0.0 -bs 24 -negs 20 -e -vl <list of video names> -da <list of coniditioning audios> -alpha 0.5 
-```
-
-## Baselines
-
-```cd baselines```
-
-### Video Textures Baslines
-
-```cd classic_video_textures```
-
-1. Classic: 
-
-```
-python video_textures.py -m 1 -vdata <source video folder> -vl <list of video names> -s -bs 48
-```
-
-2. Classic+:
-
-```
-python video_textures.py -m 2 -vdata <source video folder> -vl <list of video names> -s -bs 48
-```
-
-3. Classic++: 
-
-```
-python video_textures.py -m 3 -vdata <source video folder> -vl <list of video names> -s -bs 48
-```
-
-### Audio-Conditioned Video Textures Baselines
-
-```cd audio_baselines```
-
-1. Random Clip: ```python random_segment_baseline.py -vl <original_video_list> -tl <target_audio_list>```
-2. Random Baseline: ```python random_baseline.py -vl <original_video_list> -tl <target_audio_list>```
-3. Random Shift: ```python random_shift.py -vl <original_video_list> -tl <target_audio_list>```
-4. Audio Nearest Neighbour: ```python audio_nearestneighbour.py -vl <original_video_list> -dl <target_audio_list>```
+- Schödl et al., *Video Textures*, SIGGRAPH 2000
+- Narasimhan et al., *Strumming to the Beat: Audio-Conditioned Contrastive Video Textures*, WACV 2022
+- Lucas & Kanade, *An Iterative Image Registration Technique with an Application to Stereo Vision*, IJCAI 1981
+- Bouguet, *Pyramidal Implementation of the Lucas-Kanade Feature Tracker*, Intel 2001
