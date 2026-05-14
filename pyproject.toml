@@ -47,13 +47,6 @@ dev = [
     "jupyter>=1.0.0",
 ]
 
-[tool.uv]
-package = false
-environments = [
-    "sys_platform == 'darwin'",
-    "sys_platform == 'linux' and platform_machine == 'x86_64'",
-]
-
 [[tool.uv.dependency-metadata]]
 name = "slowfast"
 version = "1.0"
@@ -77,11 +70,3 @@ requires-dist = [
 [tool.uv.sources]
 pytorchvideo = { git = "https://github.com/facebookresearch/pytorchvideo.git" }
 slowfast = { git = "https://github.com/facebookresearch/SlowFast.git" }
-torch = { index = "pytorch-cpu" }
-torchaudio = { index = "pytorch-cpu" }
-torchvision = { index = "pytorch-cpu" }
-
-[[tool.uv.index]]
-name = "pytorch-cpu"
-url = "https://download.pytorch.org/whl/cpu"
-explicit = true
