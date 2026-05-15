@@ -1,0 +1,183 @@
+# This is sketchy use pyproject.toml instead that has at least been tested a bit better
+
+absl-py==2.3.1 ; python_full_version < '3.10'
+absl-py==2.4.0 ; python_full_version >= '3.10'
+annotated-doc==0.0.4
+antlr4-python3-runtime==4.9.3
+anyio==4.12.1 ; python_full_version < '3.10'
+anyio==4.13.0 ; python_full_version >= '3.10'
+asttokens==3.0.1
+audioop-lts==0.2.2 ; python_full_version >= '3.13'
+audioread==3.1.0
+av==15.1.0 ; python_full_version < '3.10'
+av==17.0.1 ; python_full_version >= '3.10'
+certifi==2026.4.22
+cffi==2.0.0
+charset-normalizer==3.4.7
+click==8.1.8 ; python_full_version < '3.10'
+click==8.3.3 ; python_full_version >= '3.10'
+cloudpickle==3.1.2
+colorama==0.4.6 ; sys_platform == 'win32'
+contourpy==1.3.0 ; python_full_version < '3.10'
+contourpy==1.3.2 ; python_full_version == '3.10.*'
+contourpy==1.3.3 ; python_full_version >= '3.11'
+cycler==0.12.1
+decorator==4.4.2
+detectron2 @ git+https://github.com/facebookresearch/detectron2.git@e0ec4e189d438848521aee7926f9900e114229f5
+exceptiongroup==1.3.1 ; python_full_version < '3.11'
+executing==2.2.1
+fairscale==0.4.13
+filelock==3.19.1 ; python_full_version < '3.10'
+filelock==3.29.0 ; python_full_version >= '3.10'
+fonttools==4.60.2 ; python_full_version < '3.10'
+fonttools==4.63.0 ; python_full_version >= '3.10'
+fsspec==2025.10.0 ; python_full_version < '3.10'
+fsspec==2026.4.0 ; python_full_version >= '3.10'
+fvcore==0.1.5.post20221221
+grpcio==1.80.0
+h11==0.16.0
+hf-xet==1.5.0 ; platform_machine == 'AMD64' or platform_machine == 'aarch64' or platform_machine == 'amd64' or platform_machine == 'arm64' or platform_machine == 'x86_64'
+httpcore==1.0.9
+httpx==0.28.1
+huggingface-hub==1.8.0 ; python_full_version < '3.10'
+huggingface-hub==1.14.0 ; python_full_version >= '3.10'
+hydra-core==1.2.0
+idna==3.15
+imageio==2.37.2 ; python_full_version < '3.10'
+imageio==2.37.3 ; python_full_version >= '3.10'
+imageio-ffmpeg==0.4.9
+importlib-metadata==8.7.1 ; python_full_version < '3.10'
+importlib-resources==6.5.2 ; python_full_version < '3.10'
+iopath==0.1.10
+ipdb==0.13.13
+ipython==8.18.1 ; python_full_version < '3.10'
+ipython==8.39.0 ; python_full_version >= '3.10'
+jedi==0.19.2 ; python_full_version < '3.10'
+jedi==0.20.0 ; python_full_version >= '3.10'
+jinja2==3.1.6
+joblib==1.5.3
+kiwisolver==1.4.7 ; python_full_version < '3.10'
+kiwisolver==1.5.0 ; python_full_version >= '3.10'
+lazy-loader==0.5
+librosa==0.11.0
+llvmlite==0.43.0 ; python_full_version < '3.10'
+llvmlite==0.47.0 ; python_full_version >= '3.10'
+markdown==3.9 ; python_full_version < '3.10'
+markdown==3.10.2 ; python_full_version >= '3.10'
+markdown-it-py==3.0.0 ; python_full_version < '3.10'
+markdown-it-py==4.2.0 ; python_full_version >= '3.10'
+markupsafe==3.0.3
+matplotlib==3.9.4 ; python_full_version < '3.10'
+matplotlib==3.10.9 ; python_full_version >= '3.10'
+matplotlib-inline==0.2.2
+mdurl==0.1.2
+moviepy==1.0.3
+mpmath==1.3.0
+msgpack==1.1.2
+networkx==3.2.1 ; python_full_version < '3.10'
+networkx==3.4.2 ; python_full_version == '3.10.*'
+networkx==3.6.1 ; python_full_version >= '3.11'
+numba==0.60.0 ; python_full_version < '3.10'
+numba==0.65.1 ; python_full_version >= '3.10'
+numpy==1.26.4
+nvidia-cublas-cu12==12.1.3.1 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-cuda-cupti-cu12==12.1.105 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-cuda-nvrtc-cu12==12.1.105 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-cuda-runtime-cu12==12.1.105 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-cudnn-cu12==8.9.2.26 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-cufft-cu12==11.0.2.54 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-curand-cu12==10.3.2.106 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-cusolver-cu12==11.4.5.107 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-cusparse-cu12==12.1.0.106 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-nccl-cu12==2.19.3 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-nvjitlink-cu12==12.9.86 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+nvidia-nvtx-cu12==12.1.105 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+omegaconf==2.2.3
+opencv-python==4.6.0.66
+packaging==26.2
+pandas==2.3.3 ; python_full_version < '3.11' or python_full_version >= '3.14'
+pandas==3.0.3 ; python_full_version >= '3.11' and python_full_version < '3.14'
+parameterized==0.9.0
+parso==0.8.7
+pexpect==4.9.0 ; (python_full_version < '3.10' and sys_platform == 'emscripten') or (sys_platform != 'emscripten' and sys_platform != 'win32')
+pillow==11.3.0 ; python_full_version < '3.10'
+pillow==12.2.0 ; python_full_version >= '3.10'
+platformdirs==4.4.0 ; python_full_version < '3.10'
+platformdirs==4.9.6 ; python_full_version >= '3.10'
+pooch==1.9.0
+portalocker==3.2.0
+proglog==0.1.12
+prompt-toolkit==3.0.52
+protobuf==6.33.6 ; python_full_version < '3.10'
+protobuf==7.34.1 ; python_full_version >= '3.10'
+psutil==5.9.8
+ptyprocess==0.7.0 ; (python_full_version < '3.10' and sys_platform == 'emscripten') or (sys_platform != 'emscripten' and sys_platform != 'win32')
+pure-eval==0.2.3
+pycocotools==2.0.11
+pycparser==2.23 ; python_full_version < '3.10' and implementation_name != 'PyPy'
+pycparser==3.0 ; python_full_version >= '3.10' and implementation_name != 'PyPy'
+pygments==2.20.0
+pyparsing==3.3.2
+python-dateutil==2.9.0.post0
+pytorchvideo @ git+https://github.com/facebookresearch/pytorchvideo.git@f3142bb05cdb56af0704ab6f0adfb0c7bbafe4a0
+pytz==2026.2 ; python_full_version < '3.11' or python_full_version >= '3.14'
+pywin32==311 ; sys_platform == 'win32'
+pyyaml==6.0.3
+requests==2.32.5 ; python_full_version < '3.10'
+requests==2.34.2 ; python_full_version >= '3.10'
+resampy==0.4.3
+rich==15.0.0
+scikit-learn==1.6.1 ; python_full_version < '3.10'
+scikit-learn==1.7.2 ; python_full_version == '3.10.*'
+scikit-learn==1.8.0 ; python_full_version >= '3.11'
+scipy==1.13.1 ; python_full_version < '3.10'
+scipy==1.15.3 ; python_full_version == '3.10.*'
+scipy==1.17.1 ; python_full_version >= '3.11'
+setuptools==69.5.1
+shellingham==1.5.4
+simplejson==3.20.2
+six==1.17.0
+slowfast @ git+https://github.com/facebookresearch/SlowFast.git@287ec0076846560f44a9327e931a5a2360240533
+soundfile==0.13.1
+soxr==1.1.0
+stack-data==0.6.3
+standard-aifc==3.13.0 ; python_full_version >= '3.13'
+standard-chunk==3.13.0 ; python_full_version >= '3.13'
+standard-sunau==3.13.0 ; python_full_version >= '3.13'
+sympy==1.14.0
+tabulate==0.8.10
+tensorboard==2.20.0
+tensorboard-data-server==0.7.2
+tensorboardx==2.6.5
+termcolor==3.1.0 ; python_full_version < '3.10'
+termcolor==3.3.0 ; python_full_version >= '3.10'
+threadpoolctl==3.6.0
+timm==0.6.13
+tomli==2.4.1 ; python_full_version < '3.11'
+torch==2.2.0 ; python_full_version < '3.14' and sys_platform == 'darwin'
+torch==2.2.0 ; sys_platform != 'darwin' and sys_platform != 'linux'
+torch==2.2.0+cpu ; python_full_version >= '3.14' and sys_platform == 'darwin'
+torch==2.2.0+cu121 ; sys_platform == 'linux'
+torchaudio==2.2.0 ; python_full_version < '3.14' and sys_platform == 'darwin'
+torchaudio==2.2.0 ; python_full_version < '3.13' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'
+torchaudio==2.2.0 ; sys_platform != 'darwin' and sys_platform != 'linux'
+torchaudio==2.2.0+cpu ; python_full_version >= '3.14' and sys_platform == 'darwin'
+torchaudio==2.2.0+cu121 ; (python_full_version >= '3.13' and sys_platform == 'linux') or (platform_machine != 'aarch64' and sys_platform == 'linux') or (platform_python_implementation != 'CPython' and sys_platform == 'linux')
+torchvision==0.17.0 ; python_full_version < '3.14' and sys_platform == 'darwin'
+torchvision==0.17.0 ; python_full_version < '3.13' and platform_machine == 'aarch64' and platform_python_implementation == 'CPython' and sys_platform == 'linux'
+torchvision==0.17.0 ; sys_platform != 'darwin' and sys_platform != 'linux'
+torchvision==0.17.0+cpu ; python_full_version >= '3.14' and sys_platform == 'darwin'
+torchvision==0.17.0+cu121 ; (python_full_version >= '3.13' and sys_platform == 'linux') or (platform_machine != 'aarch64' and sys_platform == 'linux') or (platform_python_implementation != 'CPython' and sys_platform == 'linux')
+tqdm==4.67.3
+traitlets==5.15.0
+triton==2.2.0 ; platform_machine == 'x86_64' and sys_platform == 'linux'
+typer==0.23.2 ; python_full_version < '3.10'
+typer==0.25.1 ; python_full_version >= '3.10'
+typing-extensions==4.15.0
+tzdata==2026.2 ; python_full_version < '3.11' or python_full_version >= '3.14' or sys_platform == 'emscripten' or sys_platform == 'win32'
+urllib3==2.6.3 ; python_full_version < '3.10'
+urllib3==2.7.0 ; python_full_version >= '3.10'
+wcwidth==0.7.0
+werkzeug==3.1.8
+yacs==0.1.8
+zipp==3.23.1 ; python_full_version < '3.10'
