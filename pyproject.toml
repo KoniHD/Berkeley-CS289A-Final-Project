@@ -3,39 +3,40 @@ name = "avtexture"
 version = "0.1.0"
 description = "Audio-conditioned contrastive video texture synthesis (WACV 2022)"
 readme = "README.md"
-requires-python = ">=3.8,<3.11"
+requires-python = ">=3.9"
 dependencies = [
     "fairscale>=0.4.9,<0.5",
     "fvcore>=0.1.5,<0.2",
+    "detectron2",
     "hydra-core>=1.2.0,<1.3",
     "imageio>=2.21.3,<3",
     "imageio-ffmpeg>=0.4.7,<0.5",
     "ipdb>=0.13.9,<0.14",
-    "librosa>=0.9.2,<0.10",
-    "matplotlib>=3.5.3,<3.6",
+    "librosa>=0.10.1",
+    "matplotlib>=3.8.0",
     "moviepy>=1.0.3,<2",
-    "numpy>=1.23.3,<1.24",
+    "numpy>=1.26.0,<2.0.0",
     "omegaconf>=2.2.3,<2.3",
     "opencv-python>=4.6.0.66,<4.7",
-    "pandas>=1.5.0,<1.6",
-    "pillow>=9.2.0,<10",
+    "pandas>=2.1.0",
+    "pillow>=10.1.0",
     "psutil>=5.9.2,<6",
     "pytorchvideo",
     "pyyaml>=6.0,<7",
     "requests>=2.28.1,<3",
     "resampy>=0.4.2,<0.5",
-    "scikit-learn>=1.1.2,<1.2",
-    "scipy>=1.9.1,<1.10",
-    "setuptools>=59.8.0,<60",
+    "scikit-learn>=1.3.0",
+    "scipy>=1.11.0",
+    "setuptools==69.5.1",
     "simplejson>=3.17.6,<4",
     "slowfast",
-    "soundfile>=0.10.3,<0.11",
+    "soundfile>=0.12.1",
     "tabulate>=0.8.10,<0.9",
     "tensorboardx>=2.5.1,<3",
     "timm>=0.6.7,<0.7",
-    "torch==1.12.1",
-    "torchaudio==0.12.1",
-    "torchvision==0.13.1",
+    "torch>=2.2.0",
+    "torchaudio==2.2.0",
+    "torchvision==0.17.0",
     "tqdm>=4.64.1,<5",
     "yacs>=0.1.8,<0.2",
 ]
@@ -46,6 +47,21 @@ dev = [
     "ipython>=8.5.0,<9",
     "jupyter>=1.0.0",
 ]
+
+[[tool.uv.index]]
+name = "pypi"
+url = "https://pypi.org/simple"
+default = true
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu121"
+url = "https://download.pytorch.org/whl/cu121"
+explicit = true
 
 [[tool.uv.dependency-metadata]]
 name = "slowfast"
@@ -67,6 +83,39 @@ requires-dist = [
     "yacs>=0.1.6",
 ]
 
+[[tool.uv.dependency-metadata]]
+name = "detectron2"
+version = "0.6"
+requires-dist = [
+    "torch",
+    "torchvision",
+    "fvcore",
+    "cloudpickle",
+    "omegaconf",
+    "pycocotools",
+    "yacs",
+    "tabulate"
+]
+
+[tool.uv.extra-build-dependencies]
+detectron2 = [{ requirement = "torch", match-runtime = true }]
+
+[tool.uv]
+no-build-isolation-package = ["detectron2"]
+
 [tool.uv.sources]
 pytorchvideo = { git = "https://github.com/facebookresearch/pytorchvideo.git" }
 slowfast = { git = "https://github.com/facebookresearch/SlowFast.git" }
+detectron2 = { git = "https://github.com/facebookresearch/detectron2.git" }
+torch = [
+    { index = "pytorch-cpu", marker = "sys_platform == 'darwin'" },
+    { index = "pytorch-cu121", marker = "sys_platform == 'linux'" },
+]
+torchaudio = [
+    { index = "pytorch-cpu", marker = "sys_platform == 'darwin'" },
+    { index = "pytorch-cu121", marker = "sys_platform == 'linux'" },
+]
+torchvision = [
+    { index = "pytorch-cpu", marker = "sys_platform == 'darwin'" },
+    { index = "pytorch-cu121", marker = "sys_platform == 'linux'" },
+]
