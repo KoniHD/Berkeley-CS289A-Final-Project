@@ -1,43 +1,31 @@
-import ipdb
-from utils import (
-    AverageMeter,
-    Logger,
-    overlay_cmap_image,
-    waveform_to_examples,
-    save_videos,
-    split_into_batches,
-    combine_batches,
-    split_into_overlapping_segments,
-    log_mel_spectrogram,
-)
-from models import VGGish, VideoForAudio, ModelBuilder3D
-from interpolate import interpolate, modify_frames
-import torch
-import torchvision.transforms as transforms
-import torchvision.io as io
-import torch.nn.functional as F
-import torch.backends.cudnn as cudnn
-import torch.nn as nn
-import numpy as np
 import copy
-import matplotlib.pyplot as plt
-import argparse
-import os
 import math
-import shutil
+import os
 import time
 from collections import OrderedDict
-from PIL import Image
-import subprocess
-import librosa
-import matplotlib
-from dataset import scale_jitter_crop_norm
-
 from types import SimpleNamespace
 
+import librosa
+import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import torchvision.io as io
+import torchvision.transforms as transforms
+from interpolate import interpolate, modify_frames
+from models import ModelBuilder3D, VGGish, VideoForAudio
+from PIL import Image
 from slowfast.utils.parser import load_config
-from slowfast.visualization.predictor import ActionPredictor
 from slowfast.visualization.utils import process_cv2_inputs
+from utils import (
+    AverageMeter,
+    save_videos,
+    split_into_batches,
+    split_into_overlapping_segments,
+    waveform_to_examples,
+)
 
 matplotlib.use("Agg")
 
@@ -60,8 +48,15 @@ def construct_cam(weights, act):
 
     return cam
 
+
 def validate(
-    model, args, video_name="", epoch=None, tb_logger=None, model_type=2, itr=0,
+    model,
+    args,
+    video_name="",
+    epoch=None,
+    tb_logger=None,
+    model_type=2,
+    itr=0,
 ):
 
     batch_time = AverageMeter()
@@ -73,6 +68,7 @@ def validate(
 
     # Define criterion.
     criterion = nn.CrossEntropyLoss()
+    vcam = getattr(args, "vcam", True)
 
     # Prepare video.
     video_filename = os.path.join(args.vdata, "{}.mp4".format(video_name))
@@ -88,7 +84,8 @@ def validate(
                 transforms.Resize((args.img_size, args.img_size)),
                 transforms.ToTensor(),
                 transforms.Normalize(
-                    mean=[0.4345, 0.4051, 0.3775], std=[0.2768, 0.2713, 0.2737],
+                    mean=[0.4345, 0.4051, 0.3775],
+                    std=[0.2768, 0.2713, 0.2737],
                 ),
             ]
         )
@@ -107,32 +104,22 @@ def validate(
 
         inv_t = None
 
-    if args.model_type in (2, 4):
-        idxs = np.arange(len(video) / args.subsample_rate)
-        idxs = [x * args.subsample_rate for x in idxs]
-        input_frames = video[idxs]
+    # Prepare subsampled frames for inference (video-only model_type 1 and audio-visual 2/4).
+    idxs = np.arange(len(video) / args.subsample_rate)
+    idxs = [x * args.subsample_rate for x in idxs]
+    input_frames = video[idxs]
 
-        if args.enc_arch != "slowfast":
-            input_frames = torch.stack(
-                [transform(i.permute(2, 0, 1)) for i in input_frames]
-            )
-        else:
-            # Scale values to 0-1.
-            input_frames = input_frames.float() / 255
+    if args.enc_arch != "slowfast":
+        input_frames = torch.stack(
+            [transform(i.permute(2, 0, 1)) for i in input_frames]
+        )
+    else:
+        # Scale values to 0-1.
+        input_frames = input_frames.float() / 255
 
-            # Convert RGB -> BGR.
-            permute = [2, 1, 0]
-            input_frames = input_frames[:, :, :, permute]
-
-        # else:
-        #     qf_t = [
-        #             F.interpolate(
-        #                 item.squeeze(0),
-        #                 size=(args.img_size, args.img_size),
-        #                 mode="bilinear",
-        #             )
-        #             for item in qf_t
-        #         ]
+        # Convert RGB -> BGR.
+        permute = [2, 1, 0]
+        input_frames = input_frames[:, :, :, permute]
 
     # if args.model_type == 5:
     #     # Load poses.
@@ -296,7 +283,7 @@ def validate(
         da_model = torch.nn.DataParallel(da_model).cuda()
 
     # Get weights and activation hook for visualizations.
-    if args.vcam:
+    if vcam:
         activation = {}
 
         def get_activation(name):
@@ -421,7 +408,7 @@ def validate(
 
             output = torch.zeros(len(target_segment_ids), dtype=torch.float32)
 
-            if args.vcam:
+            if vcam:
                 t_weight = torch.zeros(
                     (len(target_segment_ids), 512), dtype=torch.float32
                 )
@@ -458,9 +445,7 @@ def validate(
                     )
 
                     output_a[
-                        itr
-                        * num_gpus
-                        * args.mini_batchsize : itr
+                        itr * num_gpus * args.mini_batchsize : itr
                         * num_gpus
                         * args.mini_batchsize
                         + min(num_valid, num_gpus * args.mini_batchsize)
@@ -479,9 +464,7 @@ def validate(
                     )
 
                 output[
-                    itr
-                    * num_gpus
-                    * args.mini_batchsize : itr
+                    itr * num_gpus * args.mini_batchsize : itr
                     * num_gpus
                     * args.mini_batchsize
                     + min(num_valid, num_gpus * args.mini_batchsize)
@@ -492,12 +475,10 @@ def validate(
                     .cpu()
                 )
 
-                if args.vcam:
+                if vcam:
                     b_t_weight = b_t_weight.permute(0, 2, 1).detach().cpu()
                     t_weight[
-                        itr
-                        * num_gpus
-                        * args.mini_batchsize : itr
+                        itr * num_gpus * args.mini_batchsize : itr
                         * num_gpus
                         * args.mini_batchsize
                         + min(num_valid, num_gpus * args.mini_batchsize),
@@ -509,14 +490,12 @@ def validate(
                         .cpu()
                     )
                     t_acts[
-                        itr
-                        * num_gpus
-                        * args.mini_batchsize : itr
+                        itr * num_gpus * args.mini_batchsize : itr
                         * num_gpus
                         * args.mini_batchsize
                         + num_gpus * args.mini_batchsize,
                         :,
-                    ] = (activation["t_act"].squeeze(2).detach().cpu())
+                    ] = activation["t_act"].squeeze(2).detach().cpu()
 
                 # Reduce number of valid segments remaining.
                 num_valid -= args.mini_batchsize * num_gpus
@@ -637,6 +616,9 @@ def validate(
                     frames_bar[:, frame_n - 3 : frame_n + 3, :] = [255, 0, 0]
                     frame_arr[-25:-10, :, :] = frames_bar
 
+                if flow_overlay_runner is not None:
+                    frame_arr = flow_overlay_runner.process_frame(frame_arr)
+
                 frame_fig = Image.fromarray(frame_arr)
 
                 new_frames.append(frame_fig)
@@ -742,7 +724,7 @@ def validate(
     plt.savefig(os.path.join(results_folder, "non_zero_{}.png".format(new_video_id)))
     plt.close()
 
-    if args.vcam:
+    if vcam:
         # Log query cam videos.
         output_video_folder = os.path.join(
             results_folder, "cam_q_video_{}_{}".format(video_name, new_video_id)
@@ -872,4 +854,3 @@ def validate(
     )
 
     return
-
