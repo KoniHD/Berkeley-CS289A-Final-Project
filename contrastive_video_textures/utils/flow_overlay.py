@@ -19,6 +19,24 @@ def load_and_scale_sprite(path: str, max_side: int) -> Image.Image:
     return im.resize((new_w, new_h), Image.Resampling.LANCZOS)
 
 
+def augment_sprite_flip_rotate(
+    sprite: Image.Image,
+    rng: np.random.Generator,
+    max_abs_degrees: float = 10.0,
+) -> Image.Image:
+    """Random vertical flip (50%) then small in-plane rotation with expanded RGBA canvas."""
+    im = sprite
+    if rng.random() < 0.5:
+        im = im.transpose(Image.FLIP_TOP_BOTTOM)
+    angle = float(rng.uniform(-abs(max_abs_degrees), abs(max_abs_degrees)))
+    return im.rotate(
+        angle,
+        resample=Image.Resampling.BICUBIC,
+        expand=True,
+        fillcolor=(0, 0, 0, 0),
+    )
+
+
 def sample_placements(
     num: int,
     H: int,
@@ -187,15 +205,20 @@ class FlowOverlayRunner:
         self.sigma_d = float(sigma_d)
         self.sigma_f = float(sigma_f)
         self.num_placements = int(num_placements)
+        self.rng = np.random.default_rng(seed)
+
         max_side = int(round(0.05 * min(self.H, self.W)))
         if max_side < 1:
             max_side = 1
 
         sprite_pil = load_and_scale_sprite(png_path, max_side)
+        sprite_pil = augment_sprite_flip_rotate(sprite_pil, self.rng)
         self.sprite_rgba = sprite_to_numpy_rgba(sprite_pil)
-        self.sprite_h, self.sprite_w = self.sprite_rgba.shape[0], self.sprite_rgba.shape[1]
+        self.sprite_h, self.sprite_w = (
+            self.sprite_rgba.shape[0],
+            self.sprite_rgba.shape[1],
+        )
 
-        self.rng = np.random.default_rng(seed)
         self.placements = sample_placements(
             self.num_placements,
             self.H,

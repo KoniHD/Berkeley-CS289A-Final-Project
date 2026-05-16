@@ -1,43 +1,27 @@
 import argparse
-import os
 import math
+import os
 import shutil
-import time
-from collections import OrderedDict
-from PIL import Image
-import subprocess
-import librosa
-import matplotlib
+
 import imageio
+import matplotlib
 
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 
-import ipdb
 
-import numpy as np
 import torch
 import torch.backends.cudnn as cudnn
-import torch.nn.functional as F
-import torchvision.io as io
-
-# import torchvideo
-
-from train import train
-
-from validate import validate
 from dataset import AudioVideoSegments
-
 from models import (
-    ContrastiveFramePrediction,
-    ModelBuilder,
     ContrastivePredictionTemporal,
     ModelBuilder3D,
-    AudioVisualFeatures,
     VGGish,
 )
-from utils import AverageMeter, Logger, overlay_cmap_image, waveform_to_examples
-from paths import load_vggish_weights
+
+# import torchvideo
+from train import train
+from utils import Logger
+from validate import validate
 
 parser = argparse.ArgumentParser(description="PyTorch Video Textures")
 
@@ -372,7 +356,7 @@ def main(args, video_name, itr=0):
 
     # VGGish Model
     audio_enc_model = VGGish()
-    load_vggish_weights(audio_enc_model)
+    audio_enc_model.load_state_dict(torch.load("pytorch_vggish.pth"))
 
     model = ContrastivePredictionTemporal(
         q_image_enc_model,
