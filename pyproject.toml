@@ -46,6 +46,7 @@ dev = [
     "black>=22.3.0,<23",
     "ipython>=8.5.0,<9",
     "jupyter>=1.0.0",
+    "pytest>=7.4.0,<9",
 ]
 
 [[tool.uv.index]]
@@ -119,3 +120,7 @@ torchvision = [
     { index = "pytorch-cpu", marker = "sys_platform == 'darwin'" },
     { index = "pytorch-cu121", marker = "sys_platform == 'linux'" },
 ]
+
+[tool.pytest.ini_options]
+pythonpath = ["contrastive_video_textures"]
+testpaths = ["tests"]
