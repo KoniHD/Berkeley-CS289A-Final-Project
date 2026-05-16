@@ -124,15 +124,24 @@ def validate(
             permute = [2, 1, 0]
             input_frames = input_frames[:, :, :, permute]
 
-        # else:
-        #     qf_t = [
-        #             F.interpolate(
-        #                 item.squeeze(0),
-        #                 size=(args.img_size, args.img_size),
-        #                 mode="bilinear",
-        #             )
-        #             for item in qf_t
-        #         ]
+    flow_overlay_runner = None
+    overlay_png = getattr(args, "overlay_png", None)
+    if overlay_png and args.model_type in (2, 4):
+        from utils.flow_overlay import FlowOverlayRunner
+
+        assert os.path.isfile(overlay_png), "overlay_png not found: {}".format(
+            overlay_png
+        )
+        flow_overlay_runner = FlowOverlayRunner(
+            overlay_png,
+            int(video.shape[1]),
+            int(video.shape[2]),
+            num_placements=getattr(args, "overlay_num_placements", 100),
+            sigma_d=getattr(args, "overlay_sigma_d", 1e6),
+            sigma_f=getattr(args, "overlay_sigma_f", 500.0),
+            xy_sigma_frac=getattr(args, "overlay_xy_sigma_frac", 0.15),
+            seed=getattr(args, "overlay_seed", None),
+        )
 
     # if args.model_type == 5:
     #     # Load poses.
@@ -636,6 +645,9 @@ def validate(
                     frame_n = int(idx * video.shape[-2] / len(input_frames))
                     frames_bar[:, frame_n - 3 : frame_n + 3, :] = [255, 0, 0]
                     frame_arr[-25:-10, :, :] = frames_bar
+
+                if flow_overlay_runner is not None:
+                    frame_arr = flow_overlay_runner.process_frame(frame_arr)
 
                 frame_fig = Image.fromarray(frame_arr)
 

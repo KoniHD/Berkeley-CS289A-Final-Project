@@ -37,6 +37,7 @@ from models import (
     VGGish,
 )
 from utils import AverageMeter, Logger, overlay_cmap_image, waveform_to_examples
+from paths import load_vggish_weights
 
 parser = argparse.ArgumentParser(description="PyTorch Video Textures")
 
@@ -152,6 +153,42 @@ parser.add_argument(
     default=False,
     action="store_true",
     help="Visualize transitions.",
+)
+parser.add_argument(
+    "--overlay_png",
+    default=None,
+    type=str,
+    help="Path to RGBA PNG for flow-guided overlay on native frames (model types 2/4)",
+)
+parser.add_argument(
+    "--overlay_num_placements",
+    default=100,
+    type=int,
+    help="Number of sampled sprite placements (pairwise distance matrix is N×N)",
+)
+parser.add_argument(
+    "--overlay_seed",
+    default=None,
+    type=int,
+    help="Optional RNG seed for overlay placement sampling and transitions",
+)
+parser.add_argument(
+    "--overlay_xy_sigma_frac",
+    default=0.15,
+    type=float,
+    help="Gaussian std (as fraction of min(H,W)) for randomizing top-left vs center",
+)
+parser.add_argument(
+    "--overlay_sigma_d",
+    default=1e6,
+    type=float,
+    help="Scale for precomputed placement L2 term in transition energy",
+)
+parser.add_argument(
+    "--overlay_sigma_f",
+    default=500.0,
+    type=float,
+    help="Scale for squared flow-prediction deviation term in transition energy",
 )
 
 parser.add_argument(
@@ -335,7 +372,7 @@ def main(args, video_name, itr=0):
 
     # VGGish Model
     audio_enc_model = VGGish()
-    audio_enc_model.load_state_dict(torch.load("pytorch_vggish.pth"))
+    load_vggish_weights(audio_enc_model)
 
     model = ContrastivePredictionTemporal(
         q_image_enc_model,
